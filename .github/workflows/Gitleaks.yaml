@@ -1,0 +1,29 @@
+name: Gitleaks Secret Scanner
+
+
+on:
+  # Trigger 1: Scans 'dev' every time code is pushed directly to it
+  push:
+    branches:
+      - main
+
+  # Trigger 2: Scans when a PR is opened/updated to merge into 'main'
+  pull_request:
+    branches:
+      - main
+jobs:
+  scan:
+    name: Gitleaks Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # Crucial: fetches full history so Gitleaks can scan commits
+
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: .gitleaks.toml
+          # GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }} # Required ONLY for GitHub Organizations
